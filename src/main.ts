@@ -3,6 +3,8 @@ import { config } from "dotenv";
 import cors from "cors";
 import configs from "./config/env.config";
 
+import sequelizeConnection from "./services/database/config";
+
 const { port } = configs;
 
 config();
@@ -28,6 +30,11 @@ app.use(
 
 
 try {
+    sequelizeConnection.sync().then(() => {
+      console.log("Connextion succeed");
+    }).catch((err) => {
+      console.log("Connexion failed", err.message);
+    })
     app.listen(port, () => 
     console.log(process.env.API_URL || "http://localhost:8080"));   
 } catch (error: unknown) {

@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-    "target": "es2016",                                 
+    "experimentalDecorators": true,
+    "target": "ESNext",
     "lib": ["es6"],                                      
     "module": "commonjs",                                
     "rootDir": "src",                                    
-    "resolveJsonModule": true,                           
-    "allowJs": true,                                     
+    "resolveJsonModule": true,                                                               
     "outDir": "build",                                   
     "esModuleInterop": true,                             
     "forceConsistentCasingInFileNames": true,            
@@ -13,5 +13,8 @@
     "noImplicitAny": true,                               
     "skipLibCheck": true,
     "baseUrl": ".src/",
-  }
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+  },
+  "exclude": ["node_modules", "__tests", "build"],
 }
