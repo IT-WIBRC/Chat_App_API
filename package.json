@@ -2,16 +2,17 @@
   "name": "chat_app_api",
   "version": "0.0.0",
   "description": "api for a chat application",
-  "main": "index.ts",
+  "main": "main.ts",
   "scripts": {
-    "dev": "nodemon",
+    "dev": "cross-env NODE_ENV=development nodemon",
+    "prod": "cross-env NODE_ENV=production nodemon",
     "test:unit": "jest --watch --coverage",
     "lintfix": "eslint . --ext .js,.ts --fix --ignore-path .gitignore",
     "build": "rimraf ./build && tsc",
     "start:production": "npm run build && node build/index.js",
     "prepare": "husky install",
     "precommit": "lint-staged",
-    "openapi-generate": "openapi  --useOptions --client axios --input ./specs/contrat.yaml --output ./src/services/heapup"
+    "openapi-generate": "openapi  --useOptions --client axios --input ./specs/contrat.yaml --output ./src/services/chat"
   },
   "devDependencies": {
     "@types/bcrypt": "~5.0.0",
@@ -19,9 +20,11 @@
     "@types/express": "^4.17.15",
     "@types/jest": "~29.2.2",
     "@types/jsonwebtoken": "~9.0.0",
-    "@types/node": "^16.18.10",
+    "@types/node": "^16.18.12",
+    "@types/validator": "^13.7.12",
     "@typescript-eslint/eslint-plugin": "~5.42.1",
     "@typescript-eslint/parser": "~5.42.1",
+    "cross-env": "^7.0.3",
     "dotenv": "~16.0.3",
     "eslint": "~8.27.0",
     "eslint-config-prettier": "~8.5.0",
@@ -51,6 +54,7 @@
     "jsonwebtoken": "~9.0.0",
     "mysql2": "^2.3.3",
     "sequelize": "~6.25.5",
+    "sequelize-typescript": "^2.1.5",
     "socket.io": "^4.5.4"
   },
   "engines": {
