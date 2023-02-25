@@ -1,5 +1,6 @@
 import { Optional } from "sequelize";
-import { Model, Table, Column, DataType } from "sequelize-typescript";
+import { Model, Table, Column, DataType, HasMany, Index } from "sequelize-typescript";
+import { Conversation, ConversationDTO } from "../";
 
 export enum ROLE {
     ADMIN = "ADMIN",
@@ -7,30 +8,32 @@ export enum ROLE {
     USER = "USER"
 }
 
-export interface UserAttributes {
-    id: string;
+export interface UserDTO {
+    userId: string;
     name: string;
     phoneNumber: number;
     username: string;
     password: string;
     role: ROLE;
     email: string;
+    conversations: ConversationDTO[];
 }
 
-export type UserCreationAttributes = Optional<UserAttributes, "id">;
+export type UserCreationDTO = Optional<UserDTO, "userId">;
 @Table({
     charset: "utf-8",
     createdAt: true,
     updatedAt: true,
     tableName: "user"
 })
-export class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
+export class User extends Model<UserDTO, UserCreationDTO> implements UserDTO {
+    @Index
     @Column({
-        type: DataType.UUIDV4,
+        type: DataType.UUID,
         allowNull: false,
         primaryKey: true
     })
-    id!: string;
+    userId!: string;
 
     @Column({
         type: DataType.CHAR,
@@ -69,7 +72,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> implemen
     })
     email!: string;
     @Column({
-        type: DataType.NUMBER,
+        type: DataType.INTEGER,
         unique: true,
         allowNull: false,
         validate: {
@@ -79,4 +82,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> implemen
         }
     })
     phoneNumber!: number;
+
+    @HasMany(() => Conversation)
+    conversations!: Conversation[];
 };

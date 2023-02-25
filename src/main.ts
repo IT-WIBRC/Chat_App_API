@@ -3,16 +3,18 @@ import { config } from "dotenv";
 import cors from "cors";
 import configs from "./config/env.config";
 
+import { userRouter } from "./routes";
+
 import sequelizeConnection from "./services/database/config";
 
-const { port } = configs;
+const { port, CORPS } = configs;
 
 config();
 
 const app: Application = express();
 
 app.use(cors({
-    origin: ""
+    origin: CORPS
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -28,9 +30,14 @@ app.use(
     }
   );
 
+  //routes
+  app.use("/api/v1/user", userRouter);
 
 try {
-    sequelizeConnection.sync().then(() => {
+    const isDev = process.env.NODE_ENV === "development" ? true : false;
+    console.log(isDev);
+
+    sequelizeConnection.sync({ alter: false }).then(() => {
       console.log("Connextion succeed");
     }).catch((err) => {
       console.log("Connexion failed", err.message);

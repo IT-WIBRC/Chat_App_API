@@ -9,7 +9,9 @@ const configs= {
   dbName: process.env.DB_NAME,
   dbUser: process.env.DB_USER,
   dbHost: process.env.DB_HOST,
-  dbDriver: process.env.DB_DRIVER
+  dbDialect: process.env.DB_DIALECT,
+  dbPort: process.env.DB_PORT,
+  CORPS: process.env.CORPS
 };
 
 export default configs;

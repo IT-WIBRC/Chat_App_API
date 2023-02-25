@@ -1,7 +1,10 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
+import { UserController } from "../services";
 
-const router = Router();
+const userRouter = Router();
+const userController = new UserController();
 
-router.post("", async (req: Request, res: Response) => {});
+userRouter.post("/create", userController.create);
+userRouter.get("/all", userController.findAll);
 
-export default router;
+export default userRouter;

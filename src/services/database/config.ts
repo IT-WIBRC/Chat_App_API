@@ -5,16 +5,21 @@ import configs from "../../config/env.config";
 //Models
 import { User, Conversation, Message, Member } from "../";
 
-const { dbName, dbUser, dbHost, dbDriver, dbPassword } = configs;
+const { dbName, dbUser, dbHost, dbDialect, dbPassword, dbPort } = configs;
 
 const sequelizeConnection = new Sequelize({
   database: dbName as string,
   username: dbUser as string,
   password: dbPassword,
   host: dbHost,
-  dialect: dbDriver as Dialect,
-  logging: true,
-  models: [User, Conversation, Message, Member]
+  dialect: dbDialect as Dialect,
+  logging: console.log,
+  port: Number(dbPort) || undefined,
+  models: [Message, User, Conversation, Member],
+  pool: {
+    acquire: 30000,
+    idle: 10000
+  }
 })
 
 export default sequelizeConnection
