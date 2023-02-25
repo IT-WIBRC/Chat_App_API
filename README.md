@@ -1,2 +1,8 @@
 # Chat_App_API
-nodejs api for a chat application
+   - Nodejs 
+   - Express 
+   - Sequelize 
+   - PostgreSql 
+   - TypeScript 
+   
+Api for a Chat application (v1)
