@@ -1,7 +1,7 @@
 /* ------- IMPORTS */
 
 /* Models */
-import { User, Conversation, Message, Member } from "./modules/";
+import { User, Conversation, Message, Member, Image } from "./modules/";
 
 
 /* Types */
@@ -12,7 +12,7 @@ import { UserController } from "./modules/";
 /* ------- EXPORTS */
 
 /* Models */
-export { User, Conversation, Message, Member };
+export { User, Conversation, Message, Member, Image };
 
 /* Types */
   

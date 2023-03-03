@@ -1,6 +1,10 @@
-import express, { Application } from "express";
+import express, { type Application } from "express";
 import { config } from "dotenv";
+
+import helmet from "helmet";
+import compression from "compression";
 import cors from "cors";
+
 import configs from "./config/env.config";
 
 import { userRouter } from "./routes";
@@ -16,6 +20,9 @@ const app: Application = express();
 app.use(cors({
     origin: CORPS
 }));
+app.use(helmet());
+
+app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

@@ -1,15 +1,7 @@
-import { Optional } from "sequelize";
 import { Model, Table, Column, DataType, ForeignKey, PrimaryKey, CreatedAt, DeletedAt, Index } from "sequelize-typescript";
 import { Conversation, User } from "../";
+import { MemberCreationDTO, MemberDTO } from "../types/member";
 
-export interface MemberDTO {
-    memberId: string;
-    userId: string;
-    conversationId: string;
-    join_at: Date;
-    leave_at: Date;
-}
-export type MemberCreationDTO = Optional<MemberDTO, "memberId">;
 @Table({
     charset: "utf-8",
     tableName: "member",
@@ -23,29 +15,29 @@ export class Member extends Model<MemberCreationDTO, MemberDTO> implements Membe
         allowNull: false,
         unique: true,
     })
-    memberId!: string;
+    declare memberId: string;
 
     @ForeignKey(() => User)
     @Column({
         type: DataType.UUID
     })
-    userId!: string;
+    declare userId: string;
 
     @ForeignKey(() => Conversation)
     @Column({
         type: DataType.UUID,
     })
-    conversationId!: string;
+    declare conversationId: string;
 
     @Column({
         type: DataType.DATE,
     })
     @CreatedAt
-    join_at!: Date;
+    declare join_at: Date;
 
     @Column({
         type: DataType.DATE,
     })
     @DeletedAt
-    leave_at!: Date;
+    declare leave_at: Date;
 }

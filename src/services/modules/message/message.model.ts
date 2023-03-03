@@ -1,15 +1,7 @@
-import { Blob } from "buffer";
-import { Optional } from "sequelize";
-import { Model, Table, Column, DataType, BelongsTo, ForeignKey, PrimaryKey, Index } from "sequelize-typescript";
+import { Model, Table, Column, DataType, BelongsTo, ForeignKey, PrimaryKey, Index, HasOne } from "sequelize-typescript";
 import { Conversation } from "../";
-
-export interface MessageDTO {
-    messageId: string;
-    text?: string;
-    link?: string;
-    image?: Blob;
-}
-export type MessageCreationDTO = Optional<MessageDTO, "messageId">;
+import { Image } from "../image/image.model";
+import { MessageCreationDTO, MessageDTO } from "../types/message";
 
 @Table({
     charset: "utf-8",
@@ -24,32 +16,29 @@ export class Message extends Model<MessageCreationDTO, MessageDTO> implements Me
         primaryKey: true,
         allowNull: false,
     })
-    messageId!: string;
+    declare messageId: string;
 
     @Column({
         type: DataType.TEXT,
         allowNull: true,
     })
-    text?: string;
+    declare text: string;
 
     @Column({
         type: DataType.CHAR,
         allowNull: true,
     })
-    link?: string;
+    declare link: string;
 
-    @Column({
-        type: DataType.BLOB,
-        allowNull: true,
-    })
-    image?: Blob;
+    @HasOne(() => Image)
+    declare image: Image;
 
     @ForeignKey(() => Conversation)
     @Column({
         type: DataType.UUID,
     })
-    conversationId!: string;
+    declare conversationId: string;
 
     @BelongsTo(() => Conversation)
-    conversation!: Conversation;
+    declare conversation: Conversation;
 }

@@ -1,25 +1,8 @@
-import { Optional } from "sequelize";
+import { Sequelize } from "sequelize";
 import { Model, Table, Column, DataType, HasMany, Index } from "sequelize-typescript";
-import { Conversation, ConversationDTO } from "../";
+import { Conversation } from "../";
+import { UserCreationDTO, UserDTO, ROLE } from "../types/user";
 
-export enum ROLE {
-    ADMIN = "ADMIN",
-    MEMBER = "MEMBER",
-    USER = "USER"
-}
-
-export interface UserDTO {
-    userId: string;
-    name: string;
-    phoneNumber: number;
-    username: string;
-    password: string;
-    role: ROLE;
-    email: string;
-    conversations: ConversationDTO[];
-}
-
-export type UserCreationDTO = Optional<UserDTO, "userId">;
 @Table({
     charset: "utf-8",
     createdAt: true,
@@ -31,36 +14,37 @@ export class User extends Model<UserDTO, UserCreationDTO> implements UserDTO {
     @Column({
         type: DataType.UUID,
         allowNull: false,
-        primaryKey: true
+        primaryKey: true,
+        unique: true,
+        defaultValue: Sequelize.literal("uuid_generate_v4()"),
     })
-    userId!: string;
+    declare userId: string;
 
     @Column({
         type: DataType.CHAR,
         allowNull: false,
     })
-    name!: string;
+    declare name: string;
 
     @Column({
         type: DataType.CHAR,
         unique: true,
         allowNull: false
     })
-    username!: string;
+    declare username: string;
 
     @Column({
         type: DataType.CHAR,
         unique: true,
         allowNull: false,
     })
-    password!: string;
+    declare password: string;
 
     @Column({
         type: DataType.ENUM(ROLE.ADMIN, ROLE.MEMBER, ROLE.USER),
-        defaultValue: ROLE.MEMBER,
-        allowNull: false,
+        allowNull: true,
     })
-    role!: ROLE;
+    declare role: ROLE;
 
     @Column({
         type: DataType.CHAR,
@@ -70,19 +54,8 @@ export class User extends Model<UserDTO, UserCreationDTO> implements UserDTO {
             isEmail: true,
         }
     })
-    email!: string;
-    @Column({
-        type: DataType.INTEGER,
-        unique: true,
-        allowNull: false,
-        validate: {
-            isNumeric: true,
-            min: 9,
-            max: 9
-        }
-    })
-    phoneNumber!: number;
+    declare email: string;
 
     @HasMany(() => Conversation)
-    conversations!: Conversation[];
+    declare conversations: Conversation[];
 };

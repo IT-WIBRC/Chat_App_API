@@ -3,7 +3,7 @@ import { Dialect } from "sequelize";
 import configs from "../../config/env.config";
 
 //Models
-import { User, Conversation, Message, Member } from "../";
+import { User, Conversation, Message, Member, Image } from "../";
 
 const { dbName, dbUser, dbHost, dbDialect, dbPassword, dbPort } = configs;
 
@@ -15,7 +15,7 @@ const sequelizeConnection = new Sequelize({
   dialect: dbDialect as Dialect,
   logging: console.log,
   port: Number(dbPort) || undefined,
-  models: [Message, User, Conversation, Member],
+  models: [Message, User, Conversation, Member, Image],
   pool: {
     acquire: 30000,
     idle: 10000

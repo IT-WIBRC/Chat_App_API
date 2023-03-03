@@ -11,7 +11,8 @@ const configs= {
   dbHost: process.env.DB_HOST,
   dbDialect: process.env.DB_DIALECT,
   dbPort: process.env.DB_PORT,
-  CORPS: process.env.CORPS
+  CORPS: process.env.CORPS,
+  Encrypt_key: process.env.ENCRYPT_KEY
 };
 
 export default configs;

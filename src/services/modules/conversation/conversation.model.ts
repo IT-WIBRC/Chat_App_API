@@ -1,18 +1,13 @@
-import { Optional } from "sequelize";
-import { Model, Table, Column, DataType, HasMany, BelongsToMany, ForeignKey, PrimaryKey, Index } from "sequelize-typescript";
-import { Member, Message, User, UserDTO } from "../";
+import { Model, Table, Column, DataType, HasMany, BelongsToMany, ForeignKey, Index } from "sequelize-typescript";
+import { Member, Message, User } from "../";
+import { ConversationDTO } from "../";
+import { ConversationCreationDTO } from "../types/conversation";
 
-export interface ConversationDTO {
-    conversationId: string;
-    name: string;
-    description?: string;
-    users: UserDTO[];
-}
-export type ConversationCreationDTO = Optional<ConversationDTO, "conversationId">
 @Table({
     charset: "utf-8",
     tableName: "conversation",
     timestamps: false,
+    createdAt: true,
 })
 export class Conversation extends Model<ConversationDTO, ConversationCreationDTO> implements ConversationDTO{
 
@@ -23,28 +18,28 @@ export class Conversation extends Model<ConversationDTO, ConversationCreationDTO
         primaryKey: true,
         unique: true,
     })
-    conversationId!: string;
+    declare conversationId: string;
 
     @Column({
         type: DataType.CHAR,
         unique: true,
     })
-    name!: string;
+    declare name: string;
 
     @Column({
         type: DataType.TEXT,
     })
-    description?: string;
+    declare description: string;
 
     @ForeignKey(() => User)
     @Column({
         type: DataType.UUID,
     })
-    userId!: string;
+    declare userId: string;
 
     @HasMany(() => Message)
-    messages!: Message[];
+    declare messages: Message[];
 
     @BelongsToMany(() => User, () => Member)
-    users!: User[];
+    declare users: User[];
 }
