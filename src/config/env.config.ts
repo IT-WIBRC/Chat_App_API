@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 
 dotenv.config({ path: __dirname + `/../../.env.${process.env.NODE_ENV}` });
 
-const configs= {
+const configs = {
   port: process.env.PORT,
   dbUrl: process.env.DB_URL,
   dbPassword: process.env.DB_PASSWORD,
@@ -12,7 +12,7 @@ const configs= {
   dbDialect: process.env.DB_DIALECT,
   dbPort: process.env.DB_PORT,
   CORPS: process.env.CORPS,
-  Encrypt_key: process.env.ENCRYPT_KEY
+  Encrypt_key: process.env.ENCRYPT_KEY,
 };
 
 export default configs;

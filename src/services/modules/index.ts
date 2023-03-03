@@ -13,12 +13,11 @@ import { MemberCreationDTO, MemberDTO } from "./types/member";
 
 import UserController from "./users/user.controller";
 
-
 export { User, Member, Conversation, Message, Image };
 
-export { UserDTO, ConversationDTO, MemberDTO  }
+export { UserDTO, ConversationDTO, MemberDTO };
 
-export { UserCreationDTO, ConversationCreationDTO, MemberCreationDTO }
+export { UserCreationDTO, ConversationCreationDTO, MemberCreationDTO };
 
 //controllers
 export { UserController };

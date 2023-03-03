@@ -3,7 +3,6 @@
 /* Models */
 import { User, Conversation, Message, Member, Image } from "./modules/";
 
-
 /* Types */
 
 /* Controller */
@@ -15,6 +14,6 @@ import { UserController } from "./modules/";
 export { User, Conversation, Message, Member, Image };
 
 /* Types */
-  
+
 /* Controller */
-export { UserController }
+export { UserController };

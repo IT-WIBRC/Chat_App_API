@@ -5,22 +5,25 @@ import configs from "../../../config/env.config";
 import { UserDTO, USER_FIELDS_TO_EXTRACT } from "../types/user";
 
 const SALBOUND = 10;
-const { Encrypt_key:JWT_KEY } = configs;
+const { Encrypt_key: JWT_KEY } = configs;
 
 type Payload = {
-    id: string;
-    profile: {
-      username: string;
-      email: string;
-      name: string;
-      role?: string;
-    };
+  id: string;
+  profile: {
+    username: string;
+    email: string;
+    name: string;
+    role?: string;
   };
+};
 
-export const hashPassword = async (password: string): Promise<string> => await hash(password, SALBOUND);
+export const hashPassword = async (password: string): Promise<string> =>
+  await hash(password, SALBOUND);
 
-export const comparePassword = async (passwordToCompared: string, password: string): Promise<boolean> =>
-  await compare(passwordToCompared, password);
+export const comparePassword = async (
+  passwordToCompared: string,
+  password: string
+): Promise<boolean> => await compare(passwordToCompared, password);
 
 export const generateToken = (payload: Payload): string =>
   sign(payload, JWT_KEY as string, {
@@ -30,7 +33,7 @@ export const generateToken = (payload: Payload): string =>
 
 export const checkToken = (token: string): Payload | null | string => {
   let parsedToken: Payload | null = null;
-  let errotMessage: string = "";
+  let errotMessage = "";
   verify(token, JWT_KEY as string, (err, parsed): void => {
     if (err) {
       switch (err.name) {
@@ -38,7 +41,7 @@ export const checkToken = (token: string): Payload | null | string => {
           errotMessage = "Token has expired";
           break;
         case "JsonWebTokenError":
-          errotMessage =  "Invalid token";
+          errotMessage = "Invalid token";
           break;
         case "NotBeforeError":
           errotMessage = "Token is not active";
@@ -49,7 +52,7 @@ export const checkToken = (token: string): Payload | null | string => {
       }
     } else parsedToken = parsed as Payload;
   });
-  return errotMessage ? errotMessage :  parsedToken;
+  return errotMessage ? errotMessage : parsedToken;
 };
 
 export const assertRequiredRegisterFieldsIsNotEmpty = checkSchema({
@@ -72,9 +75,13 @@ export const assertRequiredRegisterFieldsIsNotEmpty = checkSchema({
       options: { max: 8 },
     },
     matches: {
-        errorMessage: "Username must be alphanumeric character and can contain (#!@$%&()+=) as special characters",
-        options: new RegExp("(^(?=.*?[A-Z])?(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#!@$%&()+=])?.{4,10})", "g")
-    }
+      errorMessage:
+        "Username must be alphanumeric character and can contain (#!@$%&()+=) as special characters",
+      options: new RegExp(
+        "(^(?=.*?[A-Z])?(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#!@$%&()+=])?.{4,10})",
+        "g"
+      ),
+    },
   },
   name: {
     exists: {
@@ -96,8 +103,12 @@ export const assertRequiredRegisterFieldsIsNotEmpty = checkSchema({
       options: { min: 8 },
     },
     matches: {
-      errorMessage: "Password must have at least one uppercase, lowercase, digit and special character",
-      options: new RegExp("(^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#!@$%^&*()+=]).{8,20})", "g"),
+      errorMessage:
+        "Password must have at least one uppercase, lowercase, digit and special character",
+      options: new RegExp(
+        "(^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#!@$%^&*()+=]).{8,20})",
+        "g"
+      ),
     },
   },
 });
@@ -117,8 +128,11 @@ export const assertRequiredLoginFieldsIsNotEmpty = checkSchema({
 
 type USER_KEYS = keyof UserDTO;
 
-export const getUserFieldsByFieldToExtractBy = (code: USER_FIELDS_TO_EXTRACT | null): USER_KEYS[] => {
-  if (code === USER_FIELDS_TO_EXTRACT.CODE_1) return ["email", "name", "username", "createdAt", "role"];
+export const getUserFieldsByFieldToExtractBy = (
+  code: USER_FIELDS_TO_EXTRACT | null
+): USER_KEYS[] => {
+  if (code === USER_FIELDS_TO_EXTRACT.CODE_1)
+    return ["email", "name", "username", "createdAt", "role"];
   if (code === USER_FIELDS_TO_EXTRACT.CODE_2) return ["password", "email"];
   return ["email", "username"];
 };

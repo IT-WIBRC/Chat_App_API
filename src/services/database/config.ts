@@ -1,4 +1,4 @@
-import {  Sequelize } from "sequelize-typescript";
+import { Sequelize } from "sequelize-typescript";
 import { Dialect } from "sequelize";
 import configs from "../../config/env.config";
 
@@ -18,8 +18,8 @@ const sequelizeConnection = new Sequelize({
   models: [Message, User, Conversation, Member, Image],
   pool: {
     acquire: 30000,
-    idle: 10000
-  }
-})
+    idle: 10000,
+  },
+});
 
-export default sequelizeConnection
+export default sequelizeConnection;

@@ -1,0 +1,22 @@
+{
+  "extends": "@wibrc/eslint-config-vue",
+  "rules": {
+    "sort-imports": 0,
+    "vue/max-len": [
+      "error",
+      {
+        "code": 100,
+        "comments": 80,
+        "ignoreComments": true,
+        "ignorePattern": "",
+        "ignoreRegExpLiterals": false,
+        "ignoreStrings": true,
+        "ignoreTemplateLiterals": true,
+        "ignoreTrailingComments": false,
+        "ignoreUrls": true,
+        "tabWidth": 4
+      },
+    ]
+  }
+}
+
