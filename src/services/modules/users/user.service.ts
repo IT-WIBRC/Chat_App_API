@@ -4,7 +4,7 @@ import {
   UserDTO,
   USER_FIELDS_TO_EXTRACT,
 } from "../types/user";
-import { getUserFieldsByFieldToExtractBy } from "../utils/user.utils";
+import { getUserFieldsByFieldToExtractBy } from "../../utils/user.utils";
 
 export default class UserService {
   static async findAll(): Promise<User[]> {
@@ -37,5 +37,26 @@ export default class UserService {
       attributes: getUserFieldsByFieldToExtractBy(code),
       where: { username },
     });
+  }
+
+  static async findById(
+    id: string,
+    code: USER_FIELDS_TO_EXTRACT
+  ): Promise<User | null> {
+    return await User.findByPk(id, {
+      attributes: getUserFieldsByFieldToExtractBy(code),
+    });
+  }
+
+  static async update(
+    id: string,
+    user: Partial<UserDTO>
+  ): Promise<User | null> {
+    const userToUpdate = await User.findByPk(id);
+
+    if (userToUpdate) {
+      return await userToUpdate.update(user);
+    }
+    return null;
   }
 }

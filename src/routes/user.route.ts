@@ -1,24 +1,38 @@
 import { Router } from "express";
+import { isSessionHasExpired } from "../middlewares/sessionValidation";
 import { UserController } from "../services";
 import {
-  assertRequiredLoginFieldsIsNotEmpty,
-  assertRequiredRegisterFieldsIsNotEmpty,
-} from "../services/modules/utils/user.utils";
+  assertRequiredLoginFieldsAreNotEmpty,
+  assertRequiredRegisterFieldsAreNotEmpty,
+  assertRequiredUpdateFieldsAreNotEmpty,
+} from "../services/utils/auth.utils";
 
 const userRouter = Router();
 const userController = new UserController();
 
 userRouter.post(
   "/create",
-  assertRequiredRegisterFieldsIsNotEmpty,
+  assertRequiredRegisterFieldsAreNotEmpty,
   userController.create
 );
 userRouter.post(
   "/login",
-  assertRequiredLoginFieldsIsNotEmpty,
+  assertRequiredLoginFieldsAreNotEmpty,
   userController.login
 );
 
-userRouter.get("/all", userController.findAll);
+userRouter.get("/all", isSessionHasExpired, userController.findAll);
+userRouter.get("/", isSessionHasExpired, userController.findById);
+userRouter.post(
+  "/update",
+  isSessionHasExpired,
+  assertRequiredUpdateFieldsAreNotEmpty,
+  userController.update
+);
+userRouter.post(
+  "/reset-password",
+  assertRequiredLoginFieldsAreNotEmpty,
+  UserController.resetPassword
+);
 
 export default userRouter;

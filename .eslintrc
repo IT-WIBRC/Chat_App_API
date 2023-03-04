@@ -15,7 +15,7 @@
         "ignoreTrailingComments": false,
         "ignoreUrls": true,
         "tabWidth": 4
-      },
+      }
     ]
   }
 }

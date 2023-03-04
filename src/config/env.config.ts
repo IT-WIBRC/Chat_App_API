@@ -13,6 +13,10 @@ const configs = {
   dbPort: process.env.DB_PORT,
   CORPS: process.env.CORPS,
   Encrypt_key: process.env.ENCRYPT_KEY,
+  API_URL: process.env.API_URL,
+  DOMAIN: process.env.DOMAIN,
+  EMAIL_KEY: process.env.EMAIL_KEY,
+  ORGANIZATION_EMAIL: process.env.ORGANIZATION_EMAIL,
 };
 
 export default configs;

@@ -8,7 +8,7 @@ import {
   Index,
 } from "sequelize-typescript";
 import { Conversation } from "../";
-import { UserCreationDTO, UserDTO, ROLE } from "../types/user";
+import { UserCreationDTO, UserDTO } from "../types/user";
 
 @Table({
   charset: "utf-8",
@@ -28,33 +28,27 @@ export class User extends Model<UserDTO, UserCreationDTO> implements UserDTO {
   declare userId: string;
 
   @Column({
-    type: DataType.CHAR,
+    type: DataType.STRING,
     allowNull: false,
   })
   declare name: string;
 
   @Column({
-    type: DataType.CHAR,
+    type: DataType.STRING,
     unique: true,
     allowNull: false,
   })
   declare username: string;
 
   @Column({
-    type: DataType.CHAR,
+    type: DataType.STRING,
     unique: true,
     allowNull: false,
   })
   declare password: string;
 
   @Column({
-    type: DataType.ENUM(ROLE.ADMIN, ROLE.MEMBER, ROLE.USER),
-    allowNull: true,
-  })
-  declare role: ROLE;
-
-  @Column({
-    type: DataType.CHAR,
+    type: DataType.STRING,
     unique: true,
     allowNull: false,
     validate: {

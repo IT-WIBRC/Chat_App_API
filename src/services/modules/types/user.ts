@@ -12,18 +12,38 @@ export interface UserDTO {
   name: string;
   username: string;
   password: string;
-  role: ROLE;
   email: string;
   conversations: ConversationDTO[];
   createdAt?: string;
   updatedAt?: string;
 }
 
-export type UserCreationDTO = Optional<UserDTO, "userId" | "role">;
+export type PayloadSession = {
+  id: string;
+  profile: {
+    username: string;
+    email: string;
+    name: string;
+  };
+  key: string;
+};
+
+export type UserCreationDTO = Optional<UserDTO, "userId">;
+
+export enum TOKEN_TYPE {
+  BEARER = "Bearer",
+  WIBRC = "Wibrc",
+}
+
+export type TOKEN = {
+  access_token: string;
+  type: TOKEN_TYPE;
+};
 
 export enum USER_FIELDS_TO_EXTRACT {
   CODE_1 = "fieldToExtactCode_1",
   CODE_2 = "fieldToExtactCode_2",
+  CODE_3 = "fieldToExtactCode_3",
   CODE_0 = "fieldToExtactCode_0",
 }
 

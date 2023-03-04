@@ -10,6 +10,7 @@ import {
 } from "sequelize-typescript";
 import { Conversation, User } from "../";
 import { MemberCreationDTO, MemberDTO } from "../types/member";
+import { ROLE } from "../types/user";
 
 @Table({
   charset: "utf-8",
@@ -40,6 +41,12 @@ export class Member
     type: DataType.UUID,
   })
   declare conversationId: string;
+
+  @Column({
+    type: DataType.ENUM(ROLE.ADMIN, ROLE.MEMBER, ROLE.USER),
+    allowNull: true,
+  })
+  declare role: ROLE;
 
   @Column({
     type: DataType.DATE,
