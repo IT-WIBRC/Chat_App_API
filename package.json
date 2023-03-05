@@ -23,6 +23,7 @@
     "@types/jest": "~29.2.2",
     "@types/jsonwebtoken": "~9.0.0",
     "@types/node": "^16.18.12",
+    "@types/nodemailer": "^6.4.7",
     "@types/validator": "^13.7.12",
     "@wibrc/eslint-config-vue": "github:IT-WIBRC/wibrc-eslint-config-vue",
     "dotenv": "~16.0.3",
@@ -41,7 +42,6 @@
     "uuid": "~9.0.0"
   },
   "dependencies": {
-    "@sendgrid/mail": "^7.7.0",
     "axios": "^1.2.1",
     "bcrypt": "~5.1.0",
     "compression": "^1.7.4",
@@ -53,7 +53,9 @@
     "express": "^4.18.2",
     "express-validator": "^6.14.2",
     "helmet": "^6.0.1",
+    "jsonwebtoken": "^9.0.0",
     "mysql2": "^2.3.3",
+    "nodemailer": "^6.9.1",
     "sequelize": "~6.25.5",
     "sequelize-typescript": "^2.1.5",
     "socket.io": "^4.5.4"

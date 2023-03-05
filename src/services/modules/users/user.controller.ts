@@ -1,16 +1,24 @@
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
-import { UserDTO, UserError, USER_FIELDS_TO_EXTRACT } from "../types/user";
+import {
+  PayloadSession,
+  UserDTO,
+  UserError,
+  USER_FIELDS_TO_EXTRACT,
+} from "../types/user";
 import {
   comparePassword,
   createCookie,
+  generateToken,
   hashPassword,
   parsedCookie,
 } from "../../utils/auth.utils";
 import UserService from "./user.service";
-import dayjs from "dayjs";
 import configs from "../../../config/env.config";
 import { User } from "..";
+import { sendEmail } from "../../externals/mails/mail.utils";
+import { HTML_TEMPLATE } from "../../externals/mails/templates/welcome";
+import { SESSION_EXPIRATION } from "../../utils/constant";
 
 const { DOMAIN } = configs;
 
@@ -62,6 +70,20 @@ export default class UserController {
             ...request.body,
             password: passwordHashed,
           });
+          sendEmail(
+            {
+              to: newUser.email,
+              subject: "Welcome to this application.",
+              html: HTML_TEMPLATE(
+                "DT(Dicuss Together)",
+                newUser.name,
+                newUser.email
+              ),
+            },
+            (info: unknown) => {
+              console.log(info);
+            }
+          );
           return response.status(201).send(newUser.userId);
         } else return response.status(409).send(UserError.USER_409);
       } else return response.status(409).send(UserError.USER_409);
@@ -100,12 +122,16 @@ export default class UserController {
 
         if (isSame) {
           return response
-            .cookie("userInfo", JSON.stringify(createCookie(user)), {
-              httpOnly: true,
-              secure: process.env.NODE_ENV === "development" ? false : true,
-              expires: dayjs().add(30, "days").toDate(),
-              domain: DOMAIN,
-            })
+            .cookie(
+              "userInfo",
+              JSON.stringify(generateToken(createCookie(user))),
+              {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "development" ? false : true,
+                expires: SESSION_EXPIRATION.toDate(),
+                domain: DOMAIN,
+              }
+            )
             .status(200)
             .send(user.setAttributes("password", ""));
         } else return response.status(401).send(UserError.USER_401);
@@ -124,7 +150,8 @@ export default class UserController {
     request: Request,
     response: Response
   ): Promise<Response<UserDTO>> {
-    const userId = parsedCookie(request.cookies.userInfo).id;
+    const userId = (parsedCookie(request.cookies.userInfo) as PayloadSession)
+      .id;
 
     try {
       const user = await UserService.findById(
@@ -156,7 +183,8 @@ export default class UserController {
         );
     }
 
-    const userId = parsedCookie(request.cookies.userInfo).id;
+    const userId = (parsedCookie(request.cookies.userInfo) as PayloadSession)
+      .id;
     try {
       const user = await UserService.update(userId, request.body);
       if (user) {
@@ -200,8 +228,6 @@ export default class UserController {
         return response
           .status(200)
           .send("Password has been updated suceesfully");
-
-        return response.status(404).send("User not found");
       }
       return response.status(404).send("User not found");
     } catch (error) {

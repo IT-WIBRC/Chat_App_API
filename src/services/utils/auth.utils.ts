@@ -1,11 +1,12 @@
 import { hash, compare } from "bcrypt";
 import { checkSchema } from "express-validator";
+import { sign, verify } from "jsonwebtoken";
 import configs from "../../config/env.config";
 import { User } from "../modules";
 import { PayloadSession } from "../modules/types/user";
 
 const SALBOUND = 10;
-const { Encrypt_key } = configs;
+const { Encrypt_key, TOKEN_KEY } = configs;
 
 export const hashPassword = async (password: string): Promise<string> =>
   await hash(password, SALBOUND);
@@ -105,8 +106,14 @@ export const assertRequiredLoginFieldsAreNotEmpty = checkSchema({
   },
 });
 
-export const parsedCookie = (cookie: string): PayloadSession =>
-  JSON.parse(cookie);
+export const parsedCookie = (cookie: string): PayloadSession | boolean => {
+  const cookieInfo = checkToken(JSON.parse(cookie));
+
+  if (cookieInfo) {
+    return cookieInfo as PayloadSession;
+  }
+  return false;
+};
 
 export const assertRequiredUpdateFieldsAreNotEmpty = checkSchema({
   email: {
@@ -172,4 +179,36 @@ export const createCookie = (user: User): PayloadSession => {
     },
     key: Encrypt_key as string,
   };
+};
+
+export const generateToken = (payload: PayloadSession): string => {
+  return sign(payload, TOKEN_KEY as string, {
+    algorithm: "HS512",
+    expiresIn: "30 days",
+  });
+};
+
+export const checkToken = (token: string): PayloadSession | null | string => {
+  let parsedToken: PayloadSession | null = null;
+  let errorTokenMessage = "";
+  console.log(token);
+  verify(token, TOKEN_KEY as string, (err, parsed): void => {
+    if (err) {
+      switch (err.name) {
+        case "TokenExpiredError":
+          errorTokenMessage = "Token has expired";
+          break;
+        case "JsonWebTokenError":
+          errorTokenMessage = "Invalid token";
+          break;
+        case "NotBeforeError":
+          errorTokenMessage = "Token is not active";
+          break;
+        default:
+          errorTokenMessage = "Other Error";
+          break;
+      }
+    } else parsedToken = parsed as PayloadSession;
+  });
+  return errorTokenMessage ? errorTokenMessage : parsedToken;
 };
