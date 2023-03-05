@@ -11,13 +11,14 @@ const configs = {
   dbHost: process.env.DB_HOST,
   dbDialect: process.env.DB_DIALECT,
   dbPort: process.env.DB_PORT,
-  CORPS: process.env.CORPS,
+  CLIENT_URL: process.env.CLIENT_URL,
   Encrypt_key: process.env.ENCRYPT_KEY,
   TOKEN_KEY: process.env.TOKEN_KEY,
   API_URL: process.env.API_URL,
   DOMAIN: process.env.DOMAIN,
   EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
   ORGANIZATION_EMAIL: process.env.ORGANIZATION_EMAIL,
+  API_PREFIX: process.env.API_PREFIX,
 };
 
 export default configs;

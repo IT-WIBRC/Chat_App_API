@@ -6,8 +6,11 @@ import {
   DataType,
   HasMany,
   Index,
+  BeforeCreate,
+  BeforeUpdate,
 } from "sequelize-typescript";
 import { Conversation } from "../";
+import { hashPassword } from "../../utils/auth.utils";
 import { UserCreationDTO, UserDTO } from "../types/user";
 
 @Table({
@@ -59,4 +62,14 @@ export class User extends Model<UserDTO, UserCreationDTO> implements UserDTO {
 
   @HasMany(() => Conversation)
   declare conversations: Conversation[];
+
+  @BeforeCreate
+  static async hasPasswordAtCreation(instance: User) {
+    instance.password = await hashPassword(instance.password);
+  }
+
+  @BeforeUpdate
+  static async hasPasswordAtUpdate(instance: User) {
+    instance.password = await hashPassword(instance.password);
+  }
 }

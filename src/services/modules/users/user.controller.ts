@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
+import { randomBytes } from "crypto";
 import {
   PayloadSession,
   UserDTO,
@@ -10,7 +11,6 @@ import {
   comparePassword,
   createCookie,
   generateToken,
-  hashPassword,
   parsedCookie,
 } from "../../utils/auth.utils";
 import UserService from "./user.service";
@@ -19,8 +19,10 @@ import { User } from "..";
 import { sendEmail } from "../../externals/mails/mail.utils";
 import { HTML_TEMPLATE } from "../../externals/mails/templates/welcome";
 import { SESSION_EXPIRATION } from "../../utils/constant";
+import { TokenService } from "../token/token.service";
+import { HTML_TEMPLATE_RESET_PASSWORD } from "../../externals/mails/templates/reset-password";
 
-const { DOMAIN } = configs;
+const { DOMAIN, CLIENT_URL, API_PREFIX } = configs;
 
 export default class UserController {
   static async findByEmail(
@@ -62,13 +64,8 @@ export default class UserController {
           USER_FIELDS_TO_EXTRACT.CODE_1
         );
         if (!myUserByUsername) {
-          const passwordHashed: string = await hashPassword(
-            request.body.password
-          );
-
           const newUser = await UserService.create({
             ...request.body,
-            password: passwordHashed,
           });
           sendEmail(
             {
@@ -196,19 +193,12 @@ export default class UserController {
     }
   }
 
-  static async resetPassword(
+  static async resetPasswordRequest(
     request: Request,
     response: Response
   ): Promise<Response<UserDTO[]>> {
-    const loginValidation = validationResult(request);
-    if (!loginValidation.isEmpty()) {
-      return response
-        .status(409)
-        .send(
-          loginValidation
-            .array({ onlyFirstError: true })
-            .map((error) => error.msg)[0]
-        );
+    if (!request.body.email) {
+      response.status(404).send("User not found");
     }
 
     try {
@@ -218,18 +208,75 @@ export default class UserController {
       );
 
       if (user) {
-        const passwordHashed: string = await hashPassword(
-          request.body.password
+        const token = await TokenService.findByUserId(
+          user.getDataValue("userId")
         );
-        await UserService.update(user.getDataValue("userId"), {
-          password: passwordHashed,
+        if (token) await token.destroy();
+        const resetToken = randomBytes(32).toString("hex");
+
+        await TokenService.create({
+          userId: user.getDataValue("userId"),
+          token: resetToken,
         });
 
+        sendEmail(
+          {
+            to: request.body.email,
+            subject: "Reset password link",
+            html: HTML_TEMPLATE_RESET_PASSWORD(
+              "Reset Password email",
+              user.getDataValue("userId"),
+              resetToken,
+              CLIENT_URL as string,
+              API_PREFIX as string
+            ),
+          },
+          (info: unknown) => {
+            console.log(info);
+          }
+        );
         return response
           .status(200)
-          .send("Password has been updated suceesfully");
+          .send("Reset password email has been sent successfully");
       }
       return response.status(404).send("User not found");
+    } catch (error) {
+      return response.status(500).send("Server Error");
+    }
+  }
+
+  static async resetPassword(
+    request: Request,
+    response: Response
+  ): Promise<Response<UserDTO[]>> {
+    const passwordResetToken = await TokenService.findByUserId(
+      request.body.userId
+    );
+    if (!passwordResetToken) {
+      return response
+        .status(400)
+        .send("Invalid or expired password reset token");
+    }
+
+    const isValid = await comparePassword(
+      request.body.token,
+      passwordResetToken.token
+    );
+    if (!isValid) {
+      return response
+        .status(400)
+        .send("Invalid or expired password reset token");
+    }
+
+    if (!request.body.password) {
+      return response.status(400).send("Password is required");
+    }
+    try {
+      await UserService.update(request.body.userId, {
+        password: request.body.password,
+      });
+      await passwordResetToken.destroy();
+      return response.status(200).send("Password has been updated suceesfully");
     } catch (error) {
       return response.status(500).send("Server Error");
     }

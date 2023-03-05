@@ -13,7 +13,7 @@ import { userRouter } from "./routes";
 import sequelizeConnection from "./services/database/config";
 import { xstAttackBlocker } from "./middlewares/requestMethod";
 
-const { port, CORPS } = configs;
+const { port, CLIENT_URL } = configs;
 
 config();
 
@@ -23,7 +23,7 @@ app.use(helmet());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: CORPS,
+    origin: CLIENT_URL,
   })
 );
 

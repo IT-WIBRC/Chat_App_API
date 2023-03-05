@@ -11,11 +11,13 @@ import { ConversationDTO, ConversationCreationDTO } from "./types/conversation";
 import { Member } from "./member/member.model";
 import { MemberCreationDTO, MemberDTO } from "./types/member";
 
+import { Token, TokenDTO } from "./token/token.model";
+
 import UserController from "./users/user.controller";
 
-export { User, Member, Conversation, Message, Image };
+export { User, Member, Conversation, Message, Image, Token };
 
-export { UserDTO, ConversationDTO, MemberDTO };
+export { UserDTO, ConversationDTO, MemberDTO, TokenDTO };
 
 export { UserCreationDTO, ConversationCreationDTO, MemberCreationDTO };
 

@@ -29,10 +29,7 @@ userRouter.post(
   assertRequiredUpdateFieldsAreNotEmpty,
   userController.update
 );
-userRouter.post(
-  "/reset-password",
-  assertRequiredLoginFieldsAreNotEmpty,
-  UserController.resetPassword
-);
+userRouter.post("/reset-password-request", UserController.resetPasswordRequest);
+userRouter.post("/reset-password", UserController.resetPassword);
 
 export default userRouter;
