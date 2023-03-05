@@ -6,6 +6,7 @@ import {
   assertRequiredRegisterFieldsAreNotEmpty,
   assertRequiredUpdateFieldsAreNotEmpty,
 } from "../services/utils/auth.utils";
+import { checkResetPasswordTokentExpiration } from "../middlewares/resetPassword";
 
 const userRouter = Router();
 const userController = new UserController();
@@ -30,6 +31,10 @@ userRouter.post(
   userController.update
 );
 userRouter.post("/reset-password-request", UserController.resetPasswordRequest);
-userRouter.post("/reset-password", UserController.resetPassword);
+userRouter.post(
+  "/reset-password",
+  checkResetPasswordTokentExpiration,
+  UserController.resetPassword
+);
 
 export default userRouter;

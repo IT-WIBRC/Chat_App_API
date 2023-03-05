@@ -19,6 +19,7 @@ const configs = {
   EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
   ORGANIZATION_EMAIL: process.env.ORGANIZATION_EMAIL,
   API_PREFIX: process.env.API_PREFIX,
+  RESET_PASSWORD_KEY: process.env.RESET_PASSWORD_KEY,
 };
 
 export default configs;

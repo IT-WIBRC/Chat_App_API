@@ -181,34 +181,50 @@ export const createCookie = (user: User): PayloadSession => {
   };
 };
 
-export const generateToken = (payload: PayloadSession): string => {
-  return sign(payload, TOKEN_KEY as string, {
+export const generateToken = (
+  payload: PayloadSession | object,
+  key = TOKEN_KEY as string,
+  time = "30 days"
+): string => {
+  return sign(payload, key, {
     algorithm: "HS512",
-    expiresIn: "30 days",
+    expiresIn: time,
   });
 };
 
-export const checkToken = (token: string): PayloadSession | null | string => {
-  let parsedToken: PayloadSession | null | string = null;
-  let errorTokenMessage = "";
-  console.log(token);
-  verify(token, TOKEN_KEY as string, (err, parsed): void => {
+export type EXP_TOKEN = {
+  token: string;
+};
+export const checkToken = (
+  token: string,
+  key = TOKEN_KEY
+): PayloadSession | null | string | EXP_TOKEN => {
+  let parsedToken: PayloadSession | null | string | EXP_TOKEN = null;
+  let errorTokenMessage: TOKEN_ERROR = "" as TOKEN_ERROR;
+  verify(token, key as string, (err, parsed): void => {
     if (err) {
       switch (err.name) {
         case "TokenExpiredError":
-          errorTokenMessage = "Token has expired";
+          errorTokenMessage = TOKEN_ERROR.EXPIRED;
           break;
         case "JsonWebTokenError":
-          errorTokenMessage = "Invalid token";
+          errorTokenMessage = TOKEN_ERROR.INVALID;
           break;
         case "NotBeforeError":
-          errorTokenMessage = "Token is not active";
+          errorTokenMessage = TOKEN_ERROR.ACTIVE;
           break;
         default:
-          errorTokenMessage = "Other Error";
+          errorTokenMessage = TOKEN_ERROR.OTHER;
           break;
       }
-    } else parsedToken = parsed as PayloadSession | string | null;
+    } else parsedToken = parsed as PayloadSession | string | null | EXP_TOKEN;
   });
   return errorTokenMessage ? errorTokenMessage : parsedToken;
 };
+
+export enum TOKEN_ERROR {
+  EXPIRED = "Token has expired",
+  INVALID = "Invalid token",
+  ACTIVE = "Token not active",
+  OTHER = "Other errors",
+}

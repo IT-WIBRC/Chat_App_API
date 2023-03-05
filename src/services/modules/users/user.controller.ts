@@ -22,7 +22,7 @@ import { SESSION_EXPIRATION } from "../../utils/constant";
 import { TokenService } from "../token/token.service";
 import { HTML_TEMPLATE_RESET_PASSWORD } from "../../externals/mails/templates/reset-password";
 
-const { DOMAIN, CLIENT_URL, API_PREFIX } = configs;
+const { DOMAIN, CLIENT_URL, API_PREFIX, RESET_PASSWORD_KEY } = configs;
 
 export default class UserController {
   static async findByEmail(
@@ -198,7 +198,7 @@ export default class UserController {
     response: Response
   ): Promise<Response<UserDTO[]>> {
     if (!request.body.email) {
-      response.status(404).send("User not found");
+      return response.status(401).send("Email is required");
     }
 
     try {
@@ -226,7 +226,7 @@ export default class UserController {
             html: HTML_TEMPLATE_RESET_PASSWORD(
               "Reset Password email",
               user.getDataValue("userId"),
-              resetToken,
+              generateToken({ token: resetToken }, RESET_PASSWORD_KEY, "1h"),
               CLIENT_URL as string,
               API_PREFIX as string
             ),
