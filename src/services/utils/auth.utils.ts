@@ -189,7 +189,7 @@ export const generateToken = (payload: PayloadSession): string => {
 };
 
 export const checkToken = (token: string): PayloadSession | null | string => {
-  let parsedToken: PayloadSession | null = null;
+  let parsedToken: PayloadSession | null | string = null;
   let errorTokenMessage = "";
   console.log(token);
   verify(token, TOKEN_KEY as string, (err, parsed): void => {
@@ -208,7 +208,7 @@ export const checkToken = (token: string): PayloadSession | null | string => {
           errorTokenMessage = "Other Error";
           break;
       }
-    } else parsedToken = parsed as PayloadSession;
+    } else parsedToken = parsed as PayloadSession | string | null;
   });
   return errorTokenMessage ? errorTokenMessage : parsedToken;
 };

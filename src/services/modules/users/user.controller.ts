@@ -260,7 +260,7 @@ export default class UserController {
 
     const isValid = await comparePassword(
       request.body.token,
-      passwordResetToken.token
+      passwordResetToken.getDataValue("token")
     );
     if (!isValid) {
       return response
