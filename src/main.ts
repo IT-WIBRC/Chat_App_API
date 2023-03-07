@@ -1,4 +1,9 @@
-import express, { type Application } from "express";
+import express, {
+  NextFunction,
+  Request,
+  Response,
+  type Application,
+} from "express";
 import { config } from "dotenv";
 
 import helmet from "helmet";
@@ -12,6 +17,8 @@ import { userRouter } from "./routes";
 
 import sequelizeConnection from "./services/database/config";
 import { xstAttackBlocker } from "./middlewares/requestMethod";
+import { NotFound } from "./middlewares/errors/notFound";
+import ErrorHandler from "./middlewares/errors/errorHandle";
 
 const { port, CLIENT_URL } = configs;
 
@@ -34,12 +41,18 @@ app.use(express.urlencoded({ extended: true }));
 // routes
 app.use("/api/v1/user", xstAttackBlocker, userRouter);
 
+app.use((request: Request, response: Response, next: NextFunction) =>
+  next(new NotFound(`Requested path ${request.path} not found`))
+);
+
+app.use(ErrorHandler.handle());
+
 try {
   const isDev = process.env.NODE_ENV === "development";
   console.log(isDev);
 
   sequelizeConnection
-    .sync({ alter: false }) //change it to alter before prod
+    .sync({ alter: false }) //change it to { alter: false } before prod
     .then(() => {
       console.log("Connextion succeed");
     })
@@ -52,3 +65,15 @@ try {
 } catch (error: unknown) {
   console.log("Server has not started due to : ", error);
 }
+
+process.on("uncaughtException", (err: Error) => {
+  console.log(err.name, err.message);
+  console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
+  process.exit(1);
+});
+
+process.on("unhandledRejection", (reason: Error) => {
+  console.log(reason.name, reason.message);
+  console.log("UNHANDLED REJECTION! 💥 Shutting down...");
+  process.exit(1);
+});

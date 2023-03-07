@@ -43,15 +43,6 @@ export default class UserController {
     request: Request,
     response: Response
   ): Promise<Response<UserDTO[]>> {
-    const validator = validationResult(request);
-    if (!validator.isEmpty()) {
-      return response
-        .status(409)
-        .send(
-          validator.array({ onlyFirstError: true }).map((error) => error.msg)[0]
-        );
-    }
-
     try {
       const myUserByEmail = await UserController.findByEmail(
         request.body.email,
@@ -94,17 +85,6 @@ export default class UserController {
     request: Request,
     response: Response
   ): Promise<Response<UserDTO[]>> {
-    const loginValidation = validationResult(request);
-    if (!loginValidation.isEmpty()) {
-      return response
-        .status(409)
-        .send(
-          loginValidation
-            .array({ onlyFirstError: true })
-            .map((error) => error.msg)[0]
-        );
-    }
-
     try {
       const user = await UserController.findByEmail(
         request.body.email,
