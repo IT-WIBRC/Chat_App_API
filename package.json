@@ -7,6 +7,7 @@
     "dev": "cross-env NODE_ENV=development nodemon",
     "prod": "cross-env NODE_ENV=production nodemon",
     "test:unit": "jest --watch --coverage",
+    "test": "jest --coverage",
     "lint:fix": "eslint . --ext .js,.ts --fix --ignore-path .gitignore",
     "build": "rimraf ./build && tsc",
     "start:production": "npm run build && node build/index.js",
