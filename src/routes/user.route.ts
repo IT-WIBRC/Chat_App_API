@@ -1,70 +1,57 @@
-import { Request, Router } from "express";
+import { Router } from "express";
 import { isSessionHasExpired } from "../middlewares/sessionValidation";
 import { UserController } from "../services";
 import {
   assertRequiredLoginFieldsAreNotEmpty,
-  assertRequiredRegisterFieldsAreNotEmpty,
-  assertRequiredUpdateFieldsAreNotEmpty,
+  emailValidation,
+  passwordValidation,
+  usernameValidation,
+  nameValidation,
 } from "../services/utils/auth.utils";
 import { checkResetPasswordTokentExpiration } from "../middlewares/resetPassword";
-import { validationResult } from "express-validator";
-import { asyncWrapper } from "../middlewares/errors/asyncWrapper";
-import { ApiError } from "../middlewares/errors/api.error";
-import { StatusCodes } from "http-status-codes";
+import { handleFieldsValidation } from "../middlewares/fieldsVerication";
 
 const userRouter = Router();
 const userController = new UserController();
 
 userRouter.post(
   "/create",
-  assertRequiredRegisterFieldsAreNotEmpty,
-  asyncWrapper(async (request: Request) => {
-    const validator = validationResult(request);
-    if (!validator.isEmpty()) {
-      throw new ApiError(
-        StatusCodes.BAD_REQUEST,
-        validator.array({ onlyFirstError: true }).map((error) => error.msg)[0]
-      );
-    }
-  }),
+  emailValidation,
+  passwordValidation,
+  usernameValidation,
+  nameValidation,
+  handleFieldsValidation,
   userController.create
 );
 userRouter.post(
   "/login",
   assertRequiredLoginFieldsAreNotEmpty,
-  asyncWrapper(async (request: Request) => {
-    const validator = validationResult(request);
-    if (!validator.isEmpty()) {
-      throw new ApiError(
-        StatusCodes.BAD_REQUEST,
-        validator.array({ onlyFirstError: true }).map((error) => error.msg)[0]
-      );
-    }
-  }),
+  handleFieldsValidation,
   userController.login
 );
 
 userRouter.get("/all", isSessionHasExpired, userController.findAll);
 userRouter.get("/", isSessionHasExpired, userController.findById);
-userRouter.post(
+userRouter.put(
   "/update",
   isSessionHasExpired,
-  assertRequiredUpdateFieldsAreNotEmpty,
-  asyncWrapper(async (request: Request) => {
-    const validator = validationResult(request);
-    if (!validator.isEmpty()) {
-      throw new ApiError(
-        StatusCodes.BAD_REQUEST,
-        validator.array({ onlyFirstError: true }).map((error) => error.msg)[0]
-      );
-    }
-  }),
+  emailValidation,
+  usernameValidation,
+  nameValidation,
+  handleFieldsValidation,
   userController.update
 );
-userRouter.post("/reset-password-request", UserController.resetPasswordRequest);
+userRouter.post(
+  "/reset-password-request",
+  emailValidation,
+  handleFieldsValidation,
+  UserController.resetPasswordRequest
+);
 userRouter.post(
   "/reset-password",
   checkResetPasswordTokentExpiration,
+  passwordValidation,
+  handleFieldsValidation,
   UserController.resetPassword
 );
 

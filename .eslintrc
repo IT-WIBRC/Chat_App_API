@@ -1,5 +1,5 @@
 {
-  "extends": "@wibrc/eslint-config-vue",
+  "extends": ["@wibrc/eslint-config-vue", "plugin:security/recommended"],
   "rules": {
     "sort-imports": 0,
     "vue/max-len": [

@@ -10,23 +10,38 @@ import helmet from "helmet";
 import compression from "compression";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import RateLimit from "express-rate-limit";
 
 import configs from "./config/env.config";
 
 import { userRouter } from "./routes";
 
-import sequelizeConnection from "./services/database/config";
+import { sequelizeConnection } from "./services/database/config";
 import { xstAttackBlocker } from "./middlewares/requestMethod";
+
 import { NotFound } from "./middlewares/errors/notFound";
 import ErrorHandler from "./middlewares/errors/errorHandle";
+import { transactionMiddleWare } from "./middlewares/transaction";
 
 const { port, CLIENT_URL } = configs;
 
 config();
 
-const app: Application = express();
+export const app: Application = express();
 
-app.use(helmet());
+app.use(
+  helmet({
+    xssFilter: true,
+  })
+);
+app.use(
+  RateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 2000000,
+    message:
+      "Too many requests maid from this IP, please try again after an hour",
+  })
+);
 app.use(cookieParser());
 app.use(
   cors({
@@ -39,6 +54,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // routes
+app.use(transactionMiddleWare);
 app.use("/api/v1/user", xstAttackBlocker, userRouter);
 
 app.use((request: Request, response: Response, next: NextFunction) =>
