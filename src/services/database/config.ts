@@ -1,12 +1,14 @@
 import { Sequelize } from "sequelize-typescript";
 import { Dialect } from "sequelize";
 import configs from "../../config/env.config";
+import { createNamespace } from "cls-hooked";
 
 //Models
 import { User, Conversation, Message, Member, Image, Token } from "../";
 
 const { dbName, dbUser, dbHost, dbDialect, dbPassword, dbPort } = configs;
 
+const dbNamespace = createNamespace("db");
 const sequelizeConnection = new Sequelize({
   database: dbName as string,
   username: dbUser as string,
@@ -22,4 +24,6 @@ const sequelizeConnection = new Sequelize({
   },
 });
 
-export default sequelizeConnection;
+sequelizeConnection.Sequelize.useCLS(dbNamespace);
+
+export { sequelizeConnection, dbNamespace };

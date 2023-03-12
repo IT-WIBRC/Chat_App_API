@@ -50,6 +50,10 @@ export class User extends Model<UserDTO, UserCreationDTO> implements UserDTO {
   })
   declare password: string;
 
+  get passwordValue(): string {
+    return this.getDataValue("password");
+  }
+
   @Column({
     type: DataType.STRING,
     unique: true,

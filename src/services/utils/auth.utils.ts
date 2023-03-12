@@ -16,7 +16,7 @@ export const comparePassword = async (
   passwordHashed: string
 ): Promise<boolean> => await compare(plainTextpassword, passwordHashed);
 
-export const assertRequiredRegisterFieldsAreNotEmpty = checkSchema({
+export const emailValidation = checkSchema({
   email: {
     exists: {
       errorMessage: "Email is required",
@@ -40,34 +40,9 @@ export const assertRequiredRegisterFieldsAreNotEmpty = checkSchema({
       },
     },
   },
-  username: {
-    exists: {
-      errorMessage: "Username is required",
-    },
-    trim: true,
-    isLength: {
-      errorMessage: "Username must have length less than 9",
-      options: { max: 8 },
-    },
-    matches: {
-      errorMessage:
-        "Username must be alphanumeric character and can contain (#!@$%&()+=) as special characters",
-      options: new RegExp(
-        "(^(?=.*?[A-Z])?(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#!@$%&()+=])?.{4,10})",
-        "g"
-      ),
-    },
-  },
-  name: {
-    exists: {
-      errorMessage: "name is required",
-    },
-    trim: true,
-    isLength: {
-      errorMessage: "Name must have length less than 9",
-      options: { max: 8 },
-    },
-  },
+});
+
+export const passwordValidation = checkSchema({
   password: {
     exists: {
       errorMessage: "Password is required",
@@ -85,6 +60,39 @@ export const assertRequiredRegisterFieldsAreNotEmpty = checkSchema({
         "Password must have at least one uppercase, lowercase, digit and special character",
       options: new RegExp(
         "(^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#!@$%^&*()+=]).{8,20})",
+        "g"
+      ),
+    },
+  },
+});
+
+export const nameValidation = checkSchema({
+  name: {
+    exists: {
+      errorMessage: "name is required",
+    },
+    trim: true,
+    isLength: {
+      errorMessage: "Name must have length less than 9",
+      options: { max: 8 },
+    },
+  },
+});
+export const usernameValidation = checkSchema({
+  username: {
+    exists: {
+      errorMessage: "Username is required",
+    },
+    trim: true,
+    isLength: {
+      errorMessage: "Username must have length less than 9",
+      options: { max: 8 },
+    },
+    matches: {
+      errorMessage:
+        "Username must be alphanumeric character and can contain (#!@$%&()+=) as special characters",
+      options: new RegExp(
+        "(^(?=.*?[A-Z])?(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#!@$%&()+=])?.{4,10})",
         "g"
       ),
     },
@@ -114,60 +122,6 @@ export const parsedCookie = (cookie: string): PayloadSession | boolean => {
   }
   return false;
 };
-
-export const assertRequiredUpdateFieldsAreNotEmpty = checkSchema({
-  email: {
-    exists: {
-      errorMessage: "Email is required",
-    },
-    isEmail: {
-      bail: true,
-      errorMessage: "Email is in wrong format",
-      options: {
-        allow_ip_domain: false,
-        allow_utf8_local_part: true,
-      },
-    },
-    normalizeEmail: {
-      options: {
-        gmail_convert_googlemaildotcom: false,
-        gmail_remove_dots: false,
-        gmail_remove_subaddress: false,
-        yahoo_remove_subaddress: false,
-        icloud_remove_subaddress: false,
-        outlookdotcom_remove_subaddress: false,
-      },
-    },
-  },
-  username: {
-    exists: {
-      errorMessage: "Username is required",
-    },
-    trim: true,
-    isLength: {
-      errorMessage: "Username must have length less than 9",
-      options: { max: 8 },
-    },
-    matches: {
-      errorMessage:
-        "Username must be alphanumeric character and can contain (#!@$%&()+=) as special characters",
-      options: new RegExp(
-        "(^(?=.*?[A-Z])?(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#!@$%&()+=])?.{4,10})",
-        "g"
-      ),
-    },
-  },
-  name: {
-    exists: {
-      errorMessage: "name is required",
-    },
-    trim: true,
-    isLength: {
-      errorMessage: "Name must have length less than 9",
-      options: { max: 8 },
-    },
-  },
-});
 
 export const createCookie = (user: User): PayloadSession => {
   return {

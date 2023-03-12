@@ -3,37 +3,55 @@ import { isSessionHasExpired } from "../middlewares/sessionValidation";
 import { UserController } from "../services";
 import {
   assertRequiredLoginFieldsAreNotEmpty,
-  assertRequiredRegisterFieldsAreNotEmpty,
-  assertRequiredUpdateFieldsAreNotEmpty,
+  emailValidation,
+  passwordValidation,
+  usernameValidation,
+  nameValidation,
 } from "../services/utils/auth.utils";
 import { checkResetPasswordTokentExpiration } from "../middlewares/resetPassword";
+import { handleFieldsValidation } from "../middlewares/fieldsVerication";
 
 const userRouter = Router();
 const userController = new UserController();
 
 userRouter.post(
   "/create",
-  assertRequiredRegisterFieldsAreNotEmpty,
+  emailValidation,
+  passwordValidation,
+  usernameValidation,
+  nameValidation,
+  handleFieldsValidation,
   userController.create
 );
 userRouter.post(
   "/login",
   assertRequiredLoginFieldsAreNotEmpty,
+  handleFieldsValidation,
   userController.login
 );
 
 userRouter.get("/all", isSessionHasExpired, userController.findAll);
 userRouter.get("/", isSessionHasExpired, userController.findById);
-userRouter.post(
+userRouter.put(
   "/update",
   isSessionHasExpired,
-  assertRequiredUpdateFieldsAreNotEmpty,
+  emailValidation,
+  usernameValidation,
+  nameValidation,
+  handleFieldsValidation,
   userController.update
 );
-userRouter.post("/reset-password-request", UserController.resetPasswordRequest);
+userRouter.post(
+  "/reset-password-request",
+  emailValidation,
+  handleFieldsValidation,
+  UserController.resetPasswordRequest
+);
 userRouter.post(
   "/reset-password",
   checkResetPasswordTokentExpiration,
+  passwordValidation,
+  handleFieldsValidation,
   UserController.resetPassword
 );
 

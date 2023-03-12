@@ -1,12 +1,6 @@
-import { Request, Response } from "express";
-import { validationResult } from "express-validator";
+import { NextFunction, Request, Response } from "express";
 import { randomBytes } from "crypto";
-import {
-  PayloadSession,
-  UserDTO,
-  UserError,
-  USER_FIELDS_TO_EXTRACT,
-} from "../types/user";
+import { PayloadSession, UserDTO, USER_FIELDS_TO_EXTRACT } from "../types/user";
 import {
   comparePassword,
   createCookie,
@@ -21,6 +15,9 @@ import { HTML_TEMPLATE } from "../../externals/mails/templates/welcome";
 import { SESSION_EXPIRATION } from "../../utils/constant";
 import { TokenService } from "../token/token.service";
 import { HTML_TEMPLATE_RESET_PASSWORD } from "../../externals/mails/templates/reset-password";
+import { asyncWrapper } from "../../../middlewares/errors/asyncWrapper";
+import { ApiError } from "../../../middlewares/errors/api.error";
+import { StatusCodes } from "http-status-codes";
 
 const { DOMAIN, CLIENT_URL, API_PREFIX, RESET_PASSWORD_KEY } = configs;
 
@@ -41,18 +38,10 @@ export default class UserController {
 
   async create(
     request: Request,
-    response: Response
+    response: Response,
+    next: NextFunction
   ): Promise<Response<UserDTO[]>> {
-    const validator = validationResult(request);
-    if (!validator.isEmpty()) {
-      return response
-        .status(409)
-        .send(
-          validator.array({ onlyFirstError: true }).map((error) => error.msg)[0]
-        );
-    }
-
-    try {
+    return asyncWrapper(async () => {
       const myUserByEmail = await UserController.findByEmail(
         request.body.email,
         USER_FIELDS_TO_EXTRACT.CODE_0
@@ -82,30 +71,17 @@ export default class UserController {
             }
           );
           return response.status(201).send(newUser.userId);
-        } else return response.status(409).send(UserError.USER_409);
-      } else return response.status(409).send(UserError.USER_409);
-    } catch (error) {
-      console.log(error);
-      return response.status(500).send("SERVER_500");
-    }
+        } else throw new ApiError(StatusCodes.CONFLICT, "User already exist");
+      } else throw new ApiError(StatusCodes.CONFLICT, "User already exist");
+    })(request, response, next);
   }
 
   async login(
     request: Request,
-    response: Response
+    response: Response,
+    next: NextFunction
   ): Promise<Response<UserDTO[]>> {
-    const loginValidation = validationResult(request);
-    if (!loginValidation.isEmpty()) {
-      return response
-        .status(409)
-        .send(
-          loginValidation
-            .array({ onlyFirstError: true })
-            .map((error) => error.msg)[0]
-        );
-    }
-
-    try {
+    return await asyncWrapper(async () => {
       const user = await UserController.findByEmail(
         request.body.email,
         USER_FIELDS_TO_EXTRACT.CODE_2
@@ -114,7 +90,7 @@ export default class UserController {
       if (user) {
         const isSame: boolean = await comparePassword(
           request.body.password,
-          user.getDataValue("password")
+          user.passwordValue
         );
 
         if (isSame) {
@@ -131,77 +107,73 @@ export default class UserController {
             )
             .status(200)
             .send(user.setAttributes("password", ""));
-        } else return response.status(401).send(UserError.USER_401);
-      } else return response.status(404).send(UserError.USER_404);
-    } catch (error) {
-      return response.status(500).send("SERVER_500");
-    }
+        } else
+          throw new ApiError(
+            StatusCodes.BAD_REQUEST,
+            "Wrong information provided"
+          );
+      } else throw new ApiError(StatusCodes.NOT_FOUND, "User not found");
+    })(request, response, next);
   }
 
-  async findAll(_: Request, response: Response): Promise<Response<UserDTO[]>> {
-    const users = await UserService.findAll();
-    return response.status(200).json(users);
+  async findAll(
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ): Promise<Response<UserDTO[]>> {
+    return await asyncWrapper(async () => {
+      const users = await UserService.findAll();
+      return response.status(200).json(users);
+    })(request, response, next);
   }
 
   async findById(
     request: Request,
-    response: Response
+    response: Response,
+    next: NextFunction
   ): Promise<Response<UserDTO>> {
     const userId = (parsedCookie(request.cookies.userInfo) as PayloadSession)
       .id;
 
-    try {
+    return asyncWrapper(async () => {
       const user = await UserService.findById(
         userId,
         USER_FIELDS_TO_EXTRACT.CODE_3
       );
       return response.status(200).json(user);
-    } catch (error) {
-      return response.status(404).send("User not found");
-    }
+    })(request, response, next);
   }
 
   async update(
     request: Request,
-    response: Response
+    response: Response,
+    next: NextFunction
   ): Promise<Response<UserDTO>> {
     if (request.body.password) {
       return response.status(409).send("Not allow to update password here.");
     }
 
-    const loginValidation = validationResult(request);
-    if (!loginValidation.isEmpty()) {
-      return response
-        .status(409)
-        .send(
-          loginValidation
-            .array({ onlyFirstError: true })
-            .map((error) => error.msg)[0]
-        );
-    }
-
     const userId = (parsedCookie(request.cookies.userInfo) as PayloadSession)
       .id;
-    try {
+    return asyncWrapper(async () => {
       const user = await UserService.update(userId, request.body);
       if (user) {
         return response.status(200).json(user?.setAttributes("password", ""));
       }
-      return response.status(404).send("User not found");
-    } catch (error) {
-      return response.status(500).send("Server error please retry again");
-    }
+      throw new ApiError(StatusCodes.NOT_FOUND, "User not found");
+    })(request, response, next);
   }
 
   static async resetPasswordRequest(
     request: Request,
-    response: Response
+    response: Response,
+    next: NextFunction
   ): Promise<Response<UserDTO[]>> {
     if (!request.body.email) {
       return response.status(401).send("Email is required");
     }
 
-    try {
+    return asyncWrapper(async () => {
       const user = await UserController.findByEmail(
         request.body.email,
         USER_FIELDS_TO_EXTRACT.CODE_0
@@ -239,46 +211,41 @@ export default class UserController {
           .status(200)
           .send("Reset password email has been sent successfully");
       }
-      return response.status(404).send("User not found");
-    } catch (error) {
-      return response.status(500).send("Server Error");
-    }
+      throw new ApiError(StatusCodes.NOT_FOUND, "User not found");
+    })(request, response, next);
   }
 
   static async resetPassword(
     request: Request,
-    response: Response
+    response: Response,
+    next: NextFunction
   ): Promise<Response<UserDTO[]>> {
-    const passwordResetToken = await TokenService.findByUserId(
-      request.body.userId
-    );
-    if (!passwordResetToken) {
-      return response
-        .status(400)
-        .send("Invalid or expired password reset token");
-    }
+    return asyncWrapper(async () => {
+      const passwordResetToken = await TokenService.findByUserId(
+        request.body.userId
+      );
+      if (!passwordResetToken) {
+        throw new ApiError(
+          StatusCodes.NOT_FOUND,
+          "Invalid or expired password reset token"
+        );
+      }
 
-    const isValid = await comparePassword(
-      request.body.token,
-      passwordResetToken.getDataValue("token")
-    );
-    if (!isValid) {
-      return response
-        .status(400)
-        .send("Invalid or expired password reset token");
-    }
-
-    if (!request.body.password) {
-      return response.status(400).send("Password is required");
-    }
-    try {
+      const isValid = await comparePassword(
+        request.body.token,
+        passwordResetToken.getDataValue("token")
+      );
+      if (!isValid) {
+        throw new ApiError(
+          StatusCodes.NOT_FOUND,
+          "Invalid or expired password reset token"
+        );
+      }
       await UserService.update(request.body.userId, {
         password: request.body.password,
       });
       await passwordResetToken.destroy();
       return response.status(200).send("Password has been updated suceesfully");
-    } catch (error) {
-      return response.status(500).send("Server Error");
-    }
+    })(request, response, next);
   }
 }
